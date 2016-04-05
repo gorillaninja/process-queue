@@ -1,0 +1,10 @@
+{
+    "incoming_paths": "/path/to/input/files",
+    "file_filters": "*",
+    "call": [
+        "/path/to/executable",
+        "%(input_file)s",
+        "%(output_file)s"
+    ],
+    "destination_base": "/path/to/output/files"
+}

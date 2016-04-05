@@ -1,0 +1,92 @@
+{
+    "incoming_paths": [
+        "/Volumes/Drobo/Incoming/Priority",
+        "/Volumes/Drobo/Incoming/TiVo",
+        "/Volumes/Drobo/Incoming/TV",
+        "/Volumes/Drobo/Incoming/Film",
+        "/Volumes/Drobo/Incoming/Animation",
+        "/Volumes/Drobo/Incoming/Watched"
+    ],
+    "in_order": [
+        "/Volumes/Drobo/Incoming/TiVo",
+        "/Volumes/Drobo/Incoming/TV"
+    ],
+    "file_filters": [
+        "*.mkv",
+        "*.mp4",
+        "*.m4v",
+        "*.mpg",
+        "*.mpeg",
+        "*.mov",
+        "*.avi"
+    ],
+    "call": [
+        "%(handbrake)s",
+        "--verbose",
+        "--input", "%(input_file)s",
+        "--main-feature",
+        "--previews", "50",
+        "--output", "%(output_file)s",
+        "--markers",
+        "--large-file",
+        "--optimize",
+        "--encoder", "x264",
+        "--x264-preset", "%(h264-preset)s",
+        "--x264-tune", "%(h264-tuning)s",
+        "--h264-profile", "%(h264-profile)s",
+        "--h264-level", "%(h264-level)s",
+        "--vb", "%(video-bitrate)s",
+        "--two-pass",
+        "--turbo",
+        "--pfr",
+        "--rate", "30",
+        "--audio", "1",
+        "--aencoder", "faac",
+        "--ab", "%(audio-bitrate)s",
+        "--mixdown", "dpl2",
+        "--arate", "auto",
+        "--audio-copy-mask", "aac,ac3,dtshd,dts,mp3",
+        "--audio-fallback", "ffac3",
+        "--maxWidth", "%(maxWidth)s",
+        "--maxHeight", "%(maxHeight)s",
+        "--loose-anamorphic",
+        "--modulus", "2",
+        "--subtitle", "scan",
+        "--subtitle-forced",
+        "--subtitle-burned"
+    ],
+    "call_vars": {
+        "audio-bitrate": "160",
+        "h264-level": "4.0",
+        "h264-preset": "slower",
+        "h264-profile": "main",
+        "h264-tuning": "film",
+        "handbrake": "/Applications/kmttg/handbrake/HandBrakeCLI",
+        "maxHeight": "720",
+        "maxWidth": "1280",
+        "video-bitrate": "3995"
+    },
+    "conditional_vars": {
+        ".mkv": {
+            "h264-preset": "veryslow"
+        },
+        "/Animation/": {
+            "h264-tuning": "animation"
+        },
+        "/TiVo/": {
+            "h264-preset": "medium",
+            "video-bitrate": "2995"
+        },
+        "/TV/": {
+            "h264-preset": "slow",
+            "video-bitrate": "2995"
+        }
+    },
+    "output_ext": "mp4",
+    "destination_base": "/Volumes/Drobo/Plex",
+    "default_subdir": "Movies",
+    "conditional_subdir": {
+        "/TiVo/": "TiVo",
+        "/TV/": "TV Shows"
+    }
+}
