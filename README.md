@@ -39,6 +39,7 @@ The actions of the script are configured by entries in a [JSON](http://www.w3sch
 	        "%(input_file)s",
 	        "%(output_file)s"
 	    ],
+	    "failed_path": "/path/to/failed/files",
 	    "destination_base": "/path/to/output/files"
 	}
 
@@ -47,7 +48,8 @@ This config includes all the mandatory sections.
 * `incoming_paths` - This is where the script will find input files. It can be a single directory or a list of them. If a list, the script will examine each one in turn until it finds a file to process.
 * `file_filters` - This is wildcard/glob that will be used to create a list of files in the input directories. It can be a single pattern or a list of them. If a list, the script will apply all of them at once to come up with a single list of files to choose from.
 * `call` - This is the program and arguements the script will call for the input file it chooses. It supports variable substitution; more detail on that below, but the variables `%(input_file)s` and `%(output_file)s` will be provided by the script and should be used by the program.
-* `destination_base` - This is where the output file will be moved to when the program lauched by the script completes.
+* `failed_path` - This is where the input file will be moved if the program lauched by the script fails, in order to remove it from being reprocessed again and again.
+* `destination_base` - This is where the output file will be moved when the program lauched by the script completes.
 
 ### Full `queue.json` Example
 
@@ -136,6 +138,7 @@ This config includes all the mandatory sections.
 	        }
 	    },
 	    "output_ext": "mp4",
+	    "failed_path": "/Volumes/Drobo/Incoming/Failed",
 	    "destination_base": "/Volumes/Drobo/Plex",
 	    "default_subdir": "Movies",
 	    "conditional_subdir": {

@@ -83,6 +83,7 @@
         }
     },
     "output_ext": "mp4",
+    "failed_path": "/Volumes/Drobo/Incoming/Failed",
     "destination_base": "/Volumes/Drobo/Plex",
     "default_subdir": "Movies",
     "conditional_subdir": {

@@ -72,7 +72,16 @@ def read_config(args):
     else:
         configfile = default_config
 
-    config = json.load(open(configfile))
+    try:
+        config = json.load(open(configfile))
+    except:
+        output("Could not read any config file.")
+        if specific_config:
+            output(' Command-line config: %s' % specific_config)
+        else:
+            output(' Machine-specific config: %s' % host_config)
+            output(' Default config: %s' % default_config)
+        sys.exit(1)
 
     if 'call_vars' not in config:
         config['call_vars'] = dict()
@@ -96,6 +105,9 @@ def read_config(args):
     if 'destination_base' not in config or type(config['destination_base']) not in (str, unicode):
         raise (ValueError("Section 'destination_base' required in config file as a string."))
 
+    if 'failed_path' not in config or type(config['failed_path']) not in (str, unicode):
+        raise (ValueError("Section 'failed_path' required in config file as a string."))
+
     if verbose:
         config['call_vars']['input_file'] = 'fake input'
         config['call_vars']['output_file'] = 'fake output'
@@ -103,6 +115,7 @@ def read_config(args):
         output('Search paths: %s' % ' '.join(config['incoming_paths']))
         output('File filters: %s' % ' '.join(config['file_filters']))
         output('Destination base: %s' % config['destination_base'])
+        output('Failed path: %s' % config['failed_path'])
 
         if 'output_ext' in config:
             output('Output extension: %s' % config['output_ext'])
@@ -189,9 +202,12 @@ def specific_marks(path):
 
 def process_input(path):
     intermediate_path = determine_intermediate_path(path)
-    run_process(path, intermediate_path)
-    store_result(path, intermediate_path)
-    atomic_remove(path)
+    if run_process(path, intermediate_path) == 0:
+        store_result(path, intermediate_path)
+        atomic_remove(path)
+    else:
+        output("Processing '%s' failed! Moving aside." % os.path.basename(path))
+        atomic_move(path, config['failed_path'])
     clear_my_marks()
 
 
@@ -212,13 +228,14 @@ def run_process(in_file, out_file):
 
     if verbose:
         output('Calling: %s' % ' '.join(this_call))
+        return 0
 
     if not debug:
         stdout_path = os.path.join(hostdir, '%s.%d.stdout' % (script_name, os.getpid()))
         stdout_file = open(stdout_path, 'a', 0)
         stderr_path = os.path.join(hostdir, '%s.%d.stderr' % (script_name, os.getpid()))
         stderr_file = open(stderr_path, 'a', 0)
-        subprocess.check_call(this_call, stdout=stdout_file, stderr=stderr_file)
+        return subprocess.call(this_call, stdout=stdout_file, stderr=stderr_file)
 
 
 def determine_parameters(in_file, out_file):

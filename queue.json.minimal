@@ -6,5 +6,6 @@
         "%(input_file)s",
         "%(output_file)s"
     ],
+    "failed_path": "/path/to/failed/files",
     "destination_base": "/path/to/output/files"
 }
