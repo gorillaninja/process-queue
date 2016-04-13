@@ -138,6 +138,7 @@ This config includes all the mandatory sections.
 	        }
 	    },
 	    "output_ext": "mp4",
+	    "timeout": 18,
 	    "failed_path": "/Volumes/Drobo/Incoming/Failed",
 	    "destination_base": "/Volumes/Drobo/Plex",
 	    "default_subdir": "Movies",
@@ -153,6 +154,7 @@ In addition to the mandatory config sections above, this example shows some new,
 * `call_vars` - In addition to the script-generated `%(input_file)s` and `%(output_file)s`, the `call` arguements can include your own variables. `call_vars` is where you put the default values for those custom variables.
 * `conditional_vars` - This section lets you modify your custom variables based on the full path of the input file. This section is a dict of dicts. Each key in this section is compared to the full path of the input file, including the filename. If there's a match, then the values under that key are used instead of the values from the `call_vars` section. **Note:** If more than one key matches the input path, they will *all* be applied, but in no particular/deterministic order. You may get unexpected behavior if you set the same variable more than once.
 * `output_ext` - The output file will be forced to have this file extension. The default behavior is for the output file to have the same extension as the input file.
+* `timeout` - If this section is present and the `subprocess32` module is available, the subprocess launched will only be allowed to run for this many hours before being killed and marked as failed. **Note:** This number is in **hours**, not seconds.
 * `default_subdir` - If this section is present, then the output file will be moved into this subdirectory of the path specified in `destination_base`.
 * `conditional_subdir` - This section behaves similarly to the `conditional_vars` section. Each key will be tested against the full input file path; if there's a match, its value will be used as the subdirectory under `destination_base`.
 
