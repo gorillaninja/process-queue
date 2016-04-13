@@ -120,7 +120,7 @@ def read_config(args):
         if 'output_ext' in config:
             output('Output extension: %s' % config['output_ext'])
 
-        output('Default call: %s' % ' '.join(replace_values(config['call'], config['call_vars'])))
+        output('Default call: %s' % ' '.join(filter(None, replace_values(config['call'], config['call_vars']))))
 
 
 def replace_values(l, m):
@@ -224,7 +224,7 @@ def run_process(in_file, out_file):
     determine_parameters(in_file, out_file)
 
     output('Starting processing: %s' % os.path.basename(in_file))
-    this_call = replace_values(config['call'], config['call_vars'])
+    this_call = filter(None, replace_values(config['call'], config['call_vars']))
 
     if verbose:
         output('Calling: %s' % ' '.join(this_call))
