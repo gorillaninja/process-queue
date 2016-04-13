@@ -11,10 +11,17 @@ import random
 import re
 import shutil
 import socket
-import subprocess
 import sys
 import tempfile
 import time
+
+if os.name == 'posix' and sys.version_info[0] < 3:
+    try:
+        import subprocess32 as subprocess
+    except:
+        import subprocess
+else:
+    import subprocess
 
 import portalocker
 
@@ -108,6 +115,10 @@ def read_config(args):
     if 'failed_path' not in config or type(config['failed_path']) not in (str, unicode):
         raise (ValueError("Section 'failed_path' required in config file as a string."))
 
+    if subprocess.__name__ == 'subprocess32':
+        if 'timeout' in config and type(config['timeout']) not in (int, float, long):
+            raise (ValueError("Section 'timeout' must be a number."))
+
     if verbose:
         config['call_vars']['input_file'] = 'fake input'
         config['call_vars']['output_file'] = 'fake output'
@@ -119,6 +130,8 @@ def read_config(args):
 
         if 'output_ext' in config:
             output('Output extension: %s' % config['output_ext'])
+        if subprocess.__name__ == 'subprocess32' and 'timeout' in config:
+            output('Subprocess timeout: %s hours' % config['timeout'])
 
         output('Default call: %s' % ' '.join(filter(None, replace_values(config['call'], config['call_vars']))))
 
@@ -228,14 +241,22 @@ def run_process(in_file, out_file):
 
     if verbose:
         output('Calling: %s' % ' '.join(this_call))
-        return 0
 
-    if not debug:
+    if debug:
+        return 0
+    else:
         stdout_path = os.path.join(hostdir, '%s.%d.stdout' % (script_name, os.getpid()))
         stdout_file = open(stdout_path, 'a', 0)
         stderr_path = os.path.join(hostdir, '%s.%d.stderr' % (script_name, os.getpid()))
         stderr_file = open(stderr_path, 'a', 0)
-        return subprocess.call(this_call, stdout=stdout_file, stderr=stderr_file)
+
+        if subprocess.__name__ == 'subprocess32' and 'timeout' in config:
+            try:
+                return subprocess.call(this_call, stdout=stdout_file, stderr=stderr_file, timeout=config['timeout']*60*60)
+            except:
+                return 1
+        else:
+            return subprocess.call(this_call, stdout=stdout_file, stderr=stderr_file)
 
 
 def determine_parameters(in_file, out_file):
