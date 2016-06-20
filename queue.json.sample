@@ -86,6 +86,7 @@
     "timeout": 18,
     "failed_path": "/Volumes/Drobo/Incoming/Failed",
     "destination_base": "/Volumes/Drobo/Plex",
+    "temp_dir": "/Volumes/Drobo/temp",
     "default_subdir": "Movies",
     "conditional_subdir": {
         "/TiVo/": "TiVo",

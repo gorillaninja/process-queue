@@ -119,6 +119,9 @@ def read_config(args):
         if 'timeout' in config and type(config['timeout']) not in (int, float, long):
             raise (ValueError("Section 'timeout' must be a number."))
 
+    if 'temp_dir' in config:
+        tempfile.tempdir = config['temp_dir']
+
     if verbose:
         config['call_vars']['input_file'] = 'fake input'
         config['call_vars']['output_file'] = 'fake output'
@@ -128,6 +131,8 @@ def read_config(args):
         output('Destination base: %s' % config['destination_base'])
         output('Failed path: %s' % config['failed_path'])
 
+        if 'temp_dir' in config:
+            output('Temp dir: %s' % config['temp_dir'])
         if 'output_ext' in config:
             output('Output extension: %s' % config['output_ext'])
         if subprocess.__name__ == 'subprocess32' and 'timeout' in config:
