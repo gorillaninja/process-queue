@@ -221,8 +221,9 @@ def specific_marks(path):
 def process_input(path):
     intermediate_path = determine_intermediate_path(path)
     if run_process(path, intermediate_path) == 0:
-        store_result(path, intermediate_path)
+        destination_path = store_result(path, intermediate_path)
         atomic_remove(path)
+        move_sidecars(path, destination_path)
     else:
         output("Processing '%s' failed! Moving aside." % os.path.basename(path))
         atomic_move(path, config['failed_path'])
@@ -281,7 +282,6 @@ def determine_parameters(in_file, out_file):
 
 def store_result(original, intermediate):
     filename = os.path.basename(original)
-    (name, ext) = os.path.splitext(filename)
 
     subdir = None
     if 'default_subdir' in config:
@@ -296,10 +296,10 @@ def store_result(original, intermediate):
 
     if subdir:
         destination_base = os.path.join(config['destination_base'], subdir)
-        output('Filing into \'%s\': %s' % (subdir, name))
+        output('Filing into \'%s\': %s' % (subdir, filename))
     else:
         destination_base = config['destination_base']
-        output('Filing: %s' % name)
+        output('Filing: %s' % filename)
 
     show_re = re.search('^(.*?) - [sS]\d+', filename)
     season_re = re.search(' - [sS](\d+)[eE]', filename)
@@ -310,6 +310,18 @@ def store_result(original, intermediate):
         location = os.path.join(destination_base, show_re.group(1), 'Season %s' % season_re.group(1))
 
     atomic_move(intermediate, location)
+    return location
+
+
+def move_sidecars(src, dst):
+    src_path = os.path.dirname(src)
+    filename = os.path.basename(src)
+    (name, ext) = os.path.splitext(filename)
+
+    for sidecar in glob.glob(os.path.join(src_path, name + '*')):
+        sidecar_filename = os.path.basename(sidecar)
+        output('Filing sidecar file: %s' % sidecar_filename)
+        atomic_move(sidecar, dst)
 
 
 def atomic_move(src, dst):
